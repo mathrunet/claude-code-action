@@ -29,8 +29,8 @@ const BASE_ALLOWED_TOOLS = [
   "LS",
   "Read",
   "Write",
-  "mcp__github_file_ops__commit_files",
-  "mcp__github_file_ops__delete_files",
+  // "mcp__github_file_ops__commit_files",
+  // "mcp__github_file_ops__delete_files",
 ];
 const DISALLOWED_TOOLS = ["WebSearch", "WebFetch"];
 
@@ -513,13 +513,13 @@ ${context.directPrompt ? `   - DIRECT INSTRUCTION: A direct instruction was prov
       ${
         eventData.isPR && !eventData.claudeBranch
           ? `
-      - Push directly using mcp__github_file_ops__commit_files to the existing branch (works for both new and existing files).
-      - Use mcp__github_file_ops__commit_files to commit files atomically in a single commit (supports single or multiple files).
+      - Push directly using \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` to the existing branch (works for both new and existing files).
+      - Use \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` to commit files atomically in a single commit (supports single or multiple files).
       - When pushing changes with this tool and TRIGGER_USERNAME is not "Unknown", include a "Co-authored-by: ${context.triggerUsername} <${context.triggerUsername}@users.noreply.github.com>" line in the commit message.`
           : `
       - You are already on the correct branch (${eventData.claudeBranch || "the PR branch"}). Do not create a new branch.
-      - Push changes directly to the current branch using mcp__github_file_ops__commit_files (works for both new and existing files)
-      - Use mcp__github_file_ops__commit_files to commit files atomically in a single commit (supports single or multiple files).
+      - Push changes directly to the current branch using \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` (works for both new and existing files)
+      - Use \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` to commit files atomically in a single commit (supports single or multiple files).
       - When pushing changes and TRIGGER_USERNAME is not "Unknown", include a "Co-authored-by: ${context.triggerUsername} <${context.triggerUsername}@users.noreply.github.com>" line in the commit message.
       ${
         eventData.claudeBranch
@@ -554,7 +554,7 @@ ${context.directPrompt ? `   - DIRECT INSTRUCTION: A direct instruction was prov
    - Always update the GitHub comment to reflect the current todo state.
    - When all todos are completed, remove the spinner and add a brief summary of what was accomplished, and what was not done.
    - Note: If you see previous Claude comments with headers like "**Claude finished @user's task**" followed by "---", do not include this in your comment. The system adds this automatically.
-   - If you changed any files locally, you must update them in the remote branch via mcp__github_file_ops__commit_files before saying that you're done.
+   - If you changed any files locally, you must update them in the remote branch via \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` before saying that you're done.
    ${eventData.claudeBranch ? `- If you created anything in your branch, your comment must include the PR URL with prefilled title and body mentioned above.` : ""}
 
 Important Notes:
@@ -564,10 +564,10 @@ Important Notes:
 - You communicate exclusively by editing your single comment - not through any other means.
 - Use this spinner HTML when work is in progress: <img src="https://github.com/user-attachments/assets/5ac382c7-e004-429b-8e35-7feb3e8f9c6f" width="14px" height="14px" style="vertical-align: middle; margin-left: 4px;" />
 ${eventData.isPR && !eventData.claudeBranch ? `- Always push to the existing branch when triggered on a PR.` : `- IMPORTANT: You are already on the correct branch (${eventData.claudeBranch || "the created branch"}). Never create new branches when triggered on issues or closed/merged PRs.`}
-- Use mcp__github_file_ops__commit_files for making commits (works for both new and existing files, single or multiple). Use mcp__github_file_ops__delete_files for deleting files (supports deleting single or multiple files atomically), or mcp__github_file_ops__delete_file for deleting a single file. Edit files locally, and the tool will read the content from the same path on disk.
+- Use \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` for making commits (works for both new and existing files, single or multiple). Use \`git rm [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` for deleting files (supports deleting single or multiple files atomically), or \`git rm [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` for deleting a single file. Edit files locally, and the tool will read the content from the same path on disk.
   Tool usage examples:
-  - mcp__github_file_ops__commit_files: {"files": ["path/to/file1.js", "path/to/file2.py"], "message": "feat: add new feature"}
-  - mcp__github_file_ops__delete_files: {"files": ["path/to/old.js"], "message": "chore: remove deprecated file"}
+  - git add path/to/file1.js path/to/file2.py && git commit -m "feat: add new feature" && git push
+  - git rm path/to/old1.js path/to/old2.py && git commit -m "chore: remove deprecated file" && git push
 - Display the todo list as a checklist in the GitHub comment and mark things off as you go.
 - REPOSITORY SETUP INSTRUCTIONS: The repository's CLAUDE.md file(s) contain critical repo-specific setup instructions, development guidelines, and preferences. Always read and follow these files, particularly the root CLAUDE.md, as they provide essential context for working with the codebase effectively.
 - Use h3 headers (###) for section titles in your comments, not h1 headers (#).
