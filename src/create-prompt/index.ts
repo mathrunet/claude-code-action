@@ -513,30 +513,18 @@ ${context.directPrompt ? `   - DIRECT INSTRUCTION: A direct instruction was prov
       ${
         eventData.isPR && !eventData.claudeBranch
           ? `
-      - Push directly using \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` to the existing branch (works for both new and existing files).
-      - Use \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` to commit files atomically in a single commit (supports single or multiple files).
+      - Push directly using \`katana git commit --message="commit message" [file-path1] [file-path2] ...\` to the existing branch (works for both new and existing files).
+      - Use \`katana git commit --message="commit message" [file-path1] [file-path2] ...\` to commit files atomically in a single commit (supports single or multiple files).
       - When pushing changes with this tool and TRIGGER_USERNAME is not "Unknown", include a "Co-authored-by: ${context.triggerUsername} <${context.triggerUsername}@users.noreply.github.com>" line in the commit message.`
           : `
       - You are already on the correct branch (${eventData.claudeBranch || "the PR branch"}). Do not create a new branch.
-      - Push changes directly to the current branch using \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` (works for both new and existing files)
-      - Use \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` to commit files atomically in a single commit (supports single or multiple files).
+      - Push changes directly to the current branch using \`katana git commit --message="commit message" [file-path1] [file-path2] ...\` (works for both new and existing files)
+      - Use \`katana git commit --message="commit message" [file-path1] [file-path2] ...\` to commit files atomically in a single commit (supports single or multiple files).
       - When pushing changes and TRIGGER_USERNAME is not "Unknown", include a "Co-authored-by: ${context.triggerUsername} <${context.triggerUsername}@users.noreply.github.com>" line in the commit message.
       ${
         eventData.claudeBranch
-          ? `- Provide a URL to create a PR manually in this format:
-        [Create a PR](${GITHUB_SERVER_URL}/${context.repository}/compare/${eventData.defaultBranch}...<branch-name>?quick_pull=1&title=<url-encoded-title>&body=<url-encoded-body>)
-        - IMPORTANT: Use THREE dots (...) between branch names, not two (..)
-          Example: ${GITHUB_SERVER_URL}/${context.repository}/compare/main...feature-branch (correct)
-          NOT: ${GITHUB_SERVER_URL}/${context.repository}/compare/main..feature-branch (incorrect)
-        - IMPORTANT: Ensure all URL parameters are properly encoded - spaces should be encoded as %20, not left as spaces
-          Example: Instead of "fix: update welcome message", use "fix%3A%20update%20welcome%20message"
-        - The target-branch should be '${eventData.defaultBranch}'.
-        - The branch-name is the current branch: ${eventData.claudeBranch}
-        - The body should include:
-          - A clear description of the changes
-          - Reference to the original ${eventData.isPR ? "PR" : "issue"}
-          - The signature: "Generated with [Claude Code](https://claude.ai/code)"
-        - Just include the markdown link with text "Create a PR" - do not add explanatory text before it like "You can create a PR using this link"`
+      ? `- After committing, a PR is created using the \`katana git pull_request --target="${eventData.defaultBranch}" --source="<branch-name>" --title="pull request title" --body="pull request message"\n\` command. Please represent newlines with \`\\n\`.
+          Example: katana git pull_request --target="${eventData.defaultBranch}" --source="feature/fix_any_bugs" --title="feat: add new feature" --body="This is a new feature"`
           : ""
       }`
       }
@@ -554,7 +542,7 @@ ${context.directPrompt ? `   - DIRECT INSTRUCTION: A direct instruction was prov
    - Always update the GitHub comment to reflect the current todo state.
    - When all todos are completed, remove the spinner and add a brief summary of what was accomplished, and what was not done.
    - Note: If you see previous Claude comments with headers like "**Claude finished @user's task**" followed by "---", do not include this in your comment. The system adds this automatically.
-   - If you changed any files locally, you must update them in the remote branch via \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` before saying that you're done.
+   - If you changed any files locally, you must update them in the remote branch via \`katana git commit --message="commit message" [file-path1] [file-path2] ...\` before saying that you're done.
    ${eventData.claudeBranch ? `- If you created anything in your branch, your comment must include the PR URL with prefilled title and body mentioned above.` : ""}
 
 Important Notes:
@@ -564,10 +552,10 @@ Important Notes:
 - You communicate exclusively by editing your single comment - not through any other means.
 - Use this spinner HTML when work is in progress: <img src="https://github.com/user-attachments/assets/5ac382c7-e004-429b-8e35-7feb3e8f9c6f" width="14px" height="14px" style="vertical-align: middle; margin-left: 4px;" />
 ${eventData.isPR && !eventData.claudeBranch ? `- Always push to the existing branch when triggered on a PR.` : `- IMPORTANT: You are already on the correct branch (${eventData.claudeBranch || "the created branch"}). Never create new branches when triggered on issues or closed/merged PRs.`}
-- Use \`git add [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` for making commits (works for both new and existing files, single or multiple). Use \`git rm [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` for deleting files (supports deleting single or multiple files atomically), or \`git rm [file-path1] [file-path2] ... && git commit -m "commit message" && git push\` for deleting a single file. Edit files locally, and the tool will read the content from the same path on disk.
+- Use \`katana git commit --message="commit message" [file-path1] [file-path2] ...\` for making commits (works for both new and existing files, single or multiple). Use \`katana git remove --message="commit message" [file-path1] [file-path2] ...\` for deleting files (supports deleting single or multiple files atomically), or \`katana git remove --message="commit message" [file-path1] [file-path2] ...\` for deleting a single file. Edit files locally, and the tool will read the content from the same path on disk.
   Tool usage examples:
-  - git add path/to/file1.js path/to/file2.py && git commit -m "feat: add new feature" && git push
-  - git rm path/to/old1.js path/to/old2.py && git commit -m "chore: remove deprecated file" && git push
+  - katana git commit -message="feat: add new feature" path/to/file1.js path/to/file2.py
+  - katana git remove -message="chore: remove deprecated file"  path/to/old1.js path/to/old2.py
 - Display the todo list as a checklist in the GitHub comment and mark things off as you go.
 - REPOSITORY SETUP INSTRUCTIONS: The repository's CLAUDE.md file(s) contain critical repo-specific setup instructions, development guidelines, and preferences. Always read and follow these files, particularly the root CLAUDE.md, as they provide essential context for working with the codebase effectively.
 - Use h3 headers (###) for section titles in your comments, not h1 headers (#).
