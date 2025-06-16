@@ -523,8 +523,8 @@ ${context.directPrompt ? `   - DIRECT INSTRUCTION: A direct instruction was prov
       - When pushing changes and TRIGGER_USERNAME is not "Unknown", include a "Co-authored-by: ${context.triggerUsername} <${context.triggerUsername}@users.noreply.github.com>" line in the commit message.
       ${
         eventData.claudeBranch
-      ? `- After committing, a PR is created using the \`katana git pull_request --target="${eventData.defaultBranch}" --source="<branch-name>" --title="pull request title" --body="pull request message"\n\` command. Please represent newlines with \`\\n\`.
-          Example: katana git pull_request --target="${eventData.defaultBranch}" --source="feature/fix_any_bugs" --title="feat: add new feature" --body="This is a new feature"`
+      ? `- After committing, a PR is created using the \`katana git pull_request --target="${eventData.defaultBranch}" --source="<branch-name>" --title="pull request title" --body="pull request message" [screenshot-filepath1] [screenshot-filepath2] ...\` command. Please represent newlines with \`\\n\`.
+          Example: katana git pull_request --target="${eventData.defaultBranch}" --source="feature/fix_any_bugs" --title="feat: add new feature" --body="This is a new feature" documents/test/ci/pages/screenshots/screenshot1.png documents/test/ci/pages/screenshots/screenshot2.png`
           : ""
       }`
       }
